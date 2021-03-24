@@ -1,19 +1,27 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <vector>
 #include <fstream>      
 #include "ImageIO.h"
 #include "algebra3.h"
 #include "Shape.h"
+#define PI 3.141592653589793
 
 using namespace std;
 
+void ScanVector(ifstream& file, vec3& targetVector)
+{
+	file >> targetVector[0] >> targetVector[1] >> targetVector[2];
+}
+
 int main()
 {
-	vec3 eyePos;
-	vector<vec3> cornerPos(4);
 	int W, H;
+	ViewInfo view;
+	vector<vec3> lightPos;
+	vector<Material> materials;
 	vector<Shape*> shapes;
 	ColorImage image;
 
@@ -31,17 +39,13 @@ int main()
 		switch (op) {
 		case 'E':
 		{
-			inputFile >> eyePos[0] >> eyePos[1] >> eyePos[2];
+			ScanVector(inputFile, view.eyePos);
 			break;
 		}
-		case 'O':
+		case 'V':
 		{
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 3; j++) {
-					inputFile >> cornerPos[i][j];
-				}
-			}
-			break;
+			ScanVector(inputFile, view.direction);
+			ScanVector(inputFile, view.upVector);
 		}
 		case 'R':
 		{
@@ -54,7 +58,7 @@ int main()
 			vec3 c;
 			float r;
 			inputFile >> c[0] >> c[1] >> c[2] >> r;
-			Shape* sphere = new Sphere(c, r);
+			Shape* sphere = new Sphere(c, r, &materials.back());
 			shapes.push_back(sphere);
 			break;
 		}
@@ -66,14 +70,37 @@ int main()
 					inputFile >> triangleVec[i][j];
 				}
 			}
-			Shape* triangle = new Triangle(triangleVec);
+			Shape* triangle = new Triangle(triangleVec, &materials.back());
 			shapes.push_back(triangle);
 			break;
+		}
+		case 'L':
+		{
+			vec3 light;
+			ScanVector(inputFile, light);
+			lightPos.push_back(light);
+		}
+		case 'M':
+		{
+			Material mat;
+			inputFile >> mat.r >> mat.g >> mat.b;
+			inputFile >> mat.Ka >> mat.Kd >> mat.Ks;
+			inputFile >> mat.specularity >> mat.reflectionRadio;
+			materials.push_back(mat);
 		}
 		default:
 			cout << "Contains invalid operation!" << endl;
 		}
 	}
+
+	vector<vec3> cornerPos(3);
+	vec3 rightVec = view.CalcRightVector();
+	float halfWidth = tan(view.fieldOfView * PI / 180.0);
+	float halfHeight = halfWidth / W * H;
+	cornerPos[0] = view.eyePos + view.direction - rightVec * halfWidth + view.upVector * halfHeight;
+	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
+	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
+
 
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
@@ -82,18 +109,11 @@ int main()
 			vec3 y = (cornerPos[2] - cornerPos[0]) * (i + 1) / H;
 			vec3 screenPos = cornerPos[0] + x + y;
 
-			vec3 dir = screenPos - eyePos;
-			Ray ray = Ray(eyePos, dir);
+			vec3 dir = screenPos - view.eyePos;
+			Ray ray = Ray(view.eyePos, dir);
 
 			Pixel color = {0, 0, 0};
-			for (auto shape : shapes)
-			{
-				if (shape->IsIntersect(ray))
-				{
-					color = { 255, 255, 255 };
-					break;
-				}
-			}
+			Shape* hitShape = ray.BroadPhaseDetection(shapes);
 
 			image.writePixel(j, i, color);
 		}
