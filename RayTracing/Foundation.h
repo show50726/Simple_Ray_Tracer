@@ -13,7 +13,7 @@ public:
 		direction = d.normalize();
 	}
 
-	Shape* BroadPhaseDetection(vector<Shape*> shapes)
+	Shape* BroadPhaseDetection(vector<Shape*>& shapes)
 	{
 		float minT = 100010;
 		Shape* candidate = NULL;
@@ -30,6 +30,11 @@ public:
 		}
 
 		return candidate;
+	}
+
+	Pixel CastRay(vector<Shape*>& shapes)
+	{
+		
 	}
 };
 
