@@ -21,6 +21,15 @@
     <ClCompile Include="algebra3.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Foundation.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Materials.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImageIO.h">
@@ -33,6 +42,9 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="algebra3.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Materials.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

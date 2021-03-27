@@ -16,6 +16,19 @@ void ScanVector(ifstream& file, vec3& targetVector)
 	file >> targetVector[0] >> targetVector[1] >> targetVector[2];
 }
 
+Pixel Vec2Pixel(vec3 color)
+{
+	color[0] = max(color[0], 0.0f);
+	color[1] = max(color[1], 0.0f);
+	color[2] = max(color[2], 0.0f);
+
+	unsigned char r = static_cast<unsigned char>(255.999f * color[0]);
+	unsigned char g = static_cast<unsigned char>(255.999f * color[1]);
+	unsigned char b = static_cast<unsigned char>(255.999f * color[2]);
+
+	return Pixel(r, g, b);
+}
+
 int main()
 {
 	int W, H;
@@ -46,6 +59,12 @@ int main()
 		{
 			ScanVector(inputFile, view.direction);
 			ScanVector(inputFile, view.upVector);
+			break;
+		}
+		case 'F':
+		{
+			inputFile >> view.fieldOfView;
+			break;
 		}
 		case 'R':
 		{
@@ -58,7 +77,8 @@ int main()
 			vec3 c;
 			float r;
 			inputFile >> c[0] >> c[1] >> c[2] >> r;
-			Shape* sphere = new Sphere(c, r, &materials.back());
+			Shape* sphere = new Sphere(c, r, materials.back());
+
 			shapes.push_back(sphere);
 			break;
 		}
@@ -70,7 +90,7 @@ int main()
 					inputFile >> triangleVec[i][j];
 				}
 			}
-			Shape* triangle = new Triangle(triangleVec, &materials.back());
+			Shape* triangle = new Triangle(triangleVec, materials.back());
 			shapes.push_back(triangle);
 			break;
 		}
@@ -79,20 +99,22 @@ int main()
 			vec3 light;
 			ScanVector(inputFile, light);
 			lightPos.push_back(light);
+			break;
 		}
 		case 'M':
 		{
 			Material mat;
-			inputFile >> mat.r >> mat.g >> mat.b;
+			ScanVector(inputFile, mat.color);
 			inputFile >> mat.Ka >> mat.Kd >> mat.Ks;
 			inputFile >> mat.specularity >> mat.reflectionRadio;
 			materials.push_back(mat);
+			break;
 		}
 		default:
 			cout << "Contains invalid operation!" << endl;
 		}
 	}
-
+	
 	vector<vec3> cornerPos(3);
 	vec3 rightVec = view.CalcRightVector();
 	float halfWidth = tan(view.fieldOfView * PI / 180.0);
@@ -101,7 +123,7 @@ int main()
 	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
 
-
+	cout << shapes[0]->material.Kd << " !!!"<< endl;
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
 		{
@@ -111,9 +133,9 @@ int main()
 
 			vec3 dir = screenPos - view.eyePos;
 			Ray ray = Ray(view.eyePos, dir);
-
-			Pixel color = {0, 0, 0};
-			Shape* hitShape = ray.BroadPhaseDetection(shapes);
+			
+			vec3 vecColor = ray.CastRay(shapes, lightPos[0], view.eyePos);
+			Pixel color = Vec2Pixel(vecColor);
 
 			image.writePixel(j, i, color);
 		}

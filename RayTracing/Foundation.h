@@ -1,6 +1,25 @@
 #pragma once
+#include <vector>
 #include "algebra3.h"
 #include "Shape.h"
+
+using namespace std;
+
+class Shape;
+
+bool IsInShadow(vec3 testPos, vec3 lightPos, vector<Shape*>& shapes, vector<Shape*> exclude);
+vec3 Reflect(const vec3 inVector, const vec3 normal);
+
+struct HitInfo {
+	Shape * hitObj;
+	vec3 hitPos;
+
+	HitInfo(Shape* obj, vec3 pos)
+	{
+		hitObj = obj;
+		hitPos = pos;
+	}
+};
 
 class Ray {
 public:
@@ -13,32 +32,11 @@ public:
 		direction = d.normalize();
 	}
 
-	Shape* BroadPhaseDetection(vector<Shape*>& shapes)
-	{
-		float minT = 100010;
-		Shape* candidate = NULL;
-		for (auto shape : shapes)
-		{
-			bool intersect;
-			float t;
-			tie(intersect, t) = shape->IsIntersect(*this);
-
-			if (intersect && t < minT)
-			{
-				candidate = shape;
-			}
-		}
-
-		return candidate;
-	}
-
-	Pixel CastRay(vector<Shape*>& shapes)
-	{
-		
-	}
+	vec3 CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos);
+	HitInfo BroadPhaseDetection(vector<Shape*>& shapes);
 };
 
-class ViewInfo {
+struct ViewInfo {
 public:
 	vec3 eyePos;
 	vec3 direction;
@@ -51,4 +49,6 @@ public:
 		return v.normalize();
 	}
 };
+
+
 

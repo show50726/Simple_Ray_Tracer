@@ -120,11 +120,15 @@
     <ClInclude Include="algebra3.h" />
     <ClInclude Include="Foundation.h" />
     <ClInclude Include="ImageIO.h" />
+    <ClInclude Include="Materials.h" />
     <ClInclude Include="Shape.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="algebra3.cpp" />
+    <ClCompile Include="Foundation.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Materials.cpp" />
+    <ClCompile Include="Shape.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
