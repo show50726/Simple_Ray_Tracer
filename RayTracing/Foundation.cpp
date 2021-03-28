@@ -85,8 +85,7 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos)
 	{
 		vec3 reflectDir = Reflect(direction, hitNormal);
 		Ray subRay = Ray(hitPos, reflectDir);
-		vector<Shape*> subset = GetExcludeVector(shapes, { shape });
-		subRayColor += shape->material.reflectionRadio * subRay.CastRay(subset, lightPos, viewDir);
+		subRayColor += shape->material.reflectionRadio * subRay.CastRay(shapes, lightPos, viewDir);
 	}
 
 	return color + subRayColor;
