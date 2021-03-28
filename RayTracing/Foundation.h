@@ -9,6 +9,7 @@ class Shape;
 
 bool IsInShadow(vec3 testPos, vec3 lightPos, vector<Shape*>& shapes, vector<Shape*> exclude);
 vec3 Reflect(const vec3 inVector, const vec3 normal);
+vector<Shape*> GetExcludeVector(vector<Shape*>& shapes, vector<Shape*> exclude);
 
 struct HitInfo {
 	Shape * hitObj;

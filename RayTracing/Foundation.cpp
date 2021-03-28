@@ -3,16 +3,7 @@
 bool IsInShadow(vec3 testPos, vec3 lightPos, vector<Shape*>& shapes, vector<Shape*> exclude)
 {
 	Ray ray = Ray(testPos, lightPos - testPos);
-	vector<Shape*> temp;
-
-	for (auto shape : shapes)
-	{
-		if (find(exclude.begin(), exclude.end(), shape) != exclude.end())
-			continue;
-
-		temp.push_back(shape);
-	}
-
+	vector<Shape*> temp = GetExcludeVector(shapes, exclude);
 	HitInfo hitInfo = ray.BroadPhaseDetection(temp);
 
 	return hitInfo.hitObj != NULL;
@@ -25,6 +16,20 @@ vec3 Reflect(const vec3 inVector, const vec3 normal)
 	v *= -1;
 
 	return (v + h).normalize();
+}
+
+vector<Shape*> GetExcludeVector(vector<Shape*>& shapes, vector<Shape*> exclude)
+{
+	vector<Shape*> temp;
+
+	for (auto shape : shapes)
+	{
+		if (find(exclude.begin(), exclude.end(), shape) != exclude.end())
+			continue;
+
+		temp.push_back(shape);
+	}
+	return temp;
 }
 
 HitInfo Ray::BroadPhaseDetection(vector<Shape*>& shapes)
@@ -80,7 +85,8 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos)
 	{
 		vec3 reflectDir = Reflect(direction, hitNormal);
 		Ray subRay = Ray(hitPos, reflectDir);
-		subRayColor += shape->material.reflectionRadio * subRay.CastRay(shapes, lightPos, viewDir);
+		vector<Shape*> subset = GetExcludeVector(shapes, { shape });
+		subRayColor += shape->material.reflectionRadio * subRay.CastRay(subset, lightPos, viewDir);
 	}
 
 	return color + subRayColor;
