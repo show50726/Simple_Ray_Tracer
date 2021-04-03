@@ -22,6 +22,5 @@ vec3 Material::_CalcSpecular(vec3 normal, vec3 lightDir, vec3 viewDir) const
 	float strength = h.normalize() * normal;
 	strength = pow(max(strength, 0.0f), specularity);
 
-	// WHY???
 	return (1-color) * strength;
 }

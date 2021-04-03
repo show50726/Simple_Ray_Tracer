@@ -90,6 +90,8 @@ int main()
 					inputFile >> triangleVec[i][j];
 				}
 			}
+
+			Triangle::ReorderToCounterClockWise(triangleVec, view.eyePos);
 			Shape* triangle = new Triangle(triangleVec, materials.back());
 			shapes.push_back(triangle);
 			break;
@@ -123,7 +125,6 @@ int main()
 	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
 
-	cout << shapes[0]->material.Kd << " !!!"<< endl;
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
 		{

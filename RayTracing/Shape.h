@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <tuple>
+#include <assert.h>
 #include "algebra3.h"
 #include "Foundation.h"
 #include "Materials.h"
@@ -50,6 +51,7 @@ public:
 	}
 
 	tuple<bool, float> HasIntersect(Ray ray) override;
+	static void ReorderToCounterClockWise(vector<vec3>& vert, vec3 eyePos);
 
 	vec3 GetNormal(vec3 position) override
 	{

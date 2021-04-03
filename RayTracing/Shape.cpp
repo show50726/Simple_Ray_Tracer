@@ -63,3 +63,20 @@ tuple<bool, float> Triangle::HasIntersect(Ray ray)
 
 	return make_tuple(false, 0);
 }
+
+void Triangle::ReorderToCounterClockWise(vector<vec3>& vert, vec3 eyePos)
+{
+	assert(vert.size() == 3);
+
+	vec3 d1 = vert[1] - vert[0];
+	vec3 d2 = vert[2] - vert[0];
+	vec3 cross = d1 ^ d2;
+	vec3 eyeDir = eyePos - vert[0];
+
+	if (cross * eyeDir < 0)
+	{
+		swap(vert[1], vert[2]);
+	}
+
+	return;
+}
