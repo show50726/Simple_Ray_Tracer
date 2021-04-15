@@ -33,7 +33,7 @@ public:
 		direction = d.normalize();
 	}
 
-	vec3 CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos);
+	vec3 CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weight);
 	HitInfo BroadPhaseDetection(vector<Shape*>& shapes);
 };
 

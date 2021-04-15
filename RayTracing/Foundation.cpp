@@ -58,7 +58,7 @@ HitInfo Ray::BroadPhaseDetection(vector<Shape*>& shapes)
 	return HitInfo(NULL, 0.0f);
 }
 
-vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos)
+vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weight)
 {
 	HitInfo hitInfo = BroadPhaseDetection(shapes);
 	Shape* shape = hitInfo.hitObj;
@@ -85,7 +85,8 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos)
 	{
 		vec3 reflectDir = Reflect(direction, hitNormal);
 		Ray subRay = Ray(hitPos, reflectDir);
-		subRayColor += shape->material.reflectionRadio * subRay.CastRay(shapes, lightPos, viewDir);
+		float newWeight = weight * shape->material.reflectionRadio;
+		subRayColor += weight * shape->material.reflectionRadio * subRay.CastRay(shapes, lightPos, viewDir, newWeight);
 	}
 
 	return color + subRayColor;

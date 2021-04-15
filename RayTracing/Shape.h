@@ -43,10 +43,10 @@ class Triangle : public Shape {
 public:
 	vector<vec3> vertices;
 
-	Triangle(vector<vec3>& vert, Material mat)
+	Triangle(vector<vec3>& vert, Material mat, vec3 normal)
 	{
 		vertices = vert;
-		_normal = _CalcNormal();
+		_normal = normal;
 		material = mat;
 	}
 
@@ -60,12 +60,4 @@ public:
 
 private:
 	vec3 _normal;
-
-	vec3 _CalcNormal()
-	{
-		vec3 d1 = vertices[1] - vertices[0];
-		vec3 d2 = vertices[2] - vertices[0];
-		vec3 dir = d1 ^ d2;
-		return dir.normalize();
-	}
 };

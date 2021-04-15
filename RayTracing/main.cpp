@@ -1,6 +1,8 @@
 #include <iostream>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <cmath>
 #include <vector>
 #include <fstream>      
@@ -10,6 +12,7 @@
 #define PI 3.141592653589793
 
 using namespace std;
+using namespace chrono;
 
 void ScanVector(ifstream& file, vec3& targetVector)
 {
@@ -85,14 +88,16 @@ int main()
 		case 'T':
 		{
 			vector<vec3> triangleVec(3);
+			vec3 normal;
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
 					inputFile >> triangleVec[i][j];
 				}
 			}
+			ScanVector(inputFile,normal);
 
 			Triangle::ReorderToCounterClockWise(triangleVec, view.eyePos);
-			Shape* triangle = new Triangle(triangleVec, materials.back());
+			Shape* triangle = new Triangle(triangleVec, materials.back(), normal);
 			shapes.push_back(triangle);
 			break;
 		}
@@ -117,6 +122,8 @@ int main()
 		}
 	}
 	
+	auto t0 = high_resolution_clock::now();
+
 	vector<vec3> cornerPos(3);
 	vec3 rightVec = view.CalcRightVector();
 	float halfWidth = tan(view.fieldOfView * PI / 180.0);
@@ -135,7 +142,7 @@ int main()
 			vec3 dir = screenPos - view.eyePos;
 			Ray ray = Ray(view.eyePos, dir);
 			
-			vec3 vecColor = ray.CastRay(shapes, lightPos[0], view.eyePos);
+			vec3 vecColor = ray.CastRay(shapes, lightPos[0], view.eyePos, 1.0f);
 			Pixel color = Vec2Pixel(vecColor);
 
 			image.writePixel(j, i, color);
@@ -143,5 +150,10 @@ int main()
 	}
 
 	image.outputPPM("RT.ppm");
+
+	cout << "done ray tracing in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
+
 	inputFile.close();
+
+	system("pause");
 }
