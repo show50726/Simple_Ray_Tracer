@@ -2,10 +2,12 @@
 #include <vector>
 #include "algebra3.h"
 #include "Shape.h"
+#include "BroadPhase.h"
 
 using namespace std;
 
 class Shape;
+class BroadPhase;
 
 bool IsInShadow(vec3 testPos, vec3 lightPos, vector<Shape*>& shapes, vector<Shape*> exclude);
 vec3 Reflect(const vec3 inVector, const vec3 normal);
@@ -27,14 +29,13 @@ public:
 	vec3 startPoint;
 	vec3 direction;
 
-	Ray(vec3 p, vec3 d)
-	{
-		startPoint = p;
-		direction = d.normalize();
-	}
+	Ray(vec3 p, vec3 d, BroadPhase* broadPhase = NULL);
 
 	vec3 CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weight);
 	HitInfo BroadPhaseDetection(vector<Shape*>& shapes);
+
+private:
+	BroadPhase * _broadPhase;
 };
 
 struct ViewInfo {

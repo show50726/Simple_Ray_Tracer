@@ -1,5 +1,7 @@
 #include "Shape.h"
 
+using namespace std;
+
 tuple<bool, float> Sphere::HasIntersect(Ray ray)
 {
 	float a = ray.direction.length2();
@@ -79,4 +81,73 @@ void Triangle::ReorderToCounterClockWise(vector<vec3>& vert, vec3 eyePos)
 	}
 
 	return;
+}
+
+tuple<bool, float> BoundingBox::HasIntersect(Ray ray) {
+	if (ray.startPoint[0] >= xMin && ray.startPoint[0] <= xMax && ray.startPoint[1] >= yMin && ray.startPoint[1] <= yMax && ray.startPoint[2] >= zMin && ray.startPoint[2] <= zMax)
+		return make_tuple(true, 0);
+
+
+	float tmin = (xMin - ray.startPoint[0]) / ray.direction[0];
+	float tmax = (xMax - ray.startPoint[0]) / ray.direction[0];
+
+	if (tmin > tmax) 
+		swap(tmin, tmax);
+
+	float tymin = (yMin - ray.startPoint[1]) / ray.direction[1];
+	float tymax = (yMax - ray.startPoint[1]) / ray.direction[1];
+
+	if (tymin > tymax) 
+		swap(tymin, tymax);
+
+	if ((tmin > tymax) || (tymin > tmax))
+		return make_tuple(false, 0);
+
+	if (tymin < tmin)
+		tmin = tymin;
+
+	if (tymin > tmin)
+		tmin = tymin;
+
+	if (tymax < tmax)
+		tmax = tymax;
+
+	float tzmin = (zMin - ray.startPoint[2]) / ray.direction[2];
+	float tzmax = (zMax - ray.startPoint[2]) / ray.direction[2];
+
+	if (tzmin > tzmax)
+		swap(tzmin, tzmax);
+
+	if ((tmin > tzmax) || (tzmin > tmax))
+		return make_tuple(false, 0);
+
+	if (tzmin > tmin)
+		tmin = tzmin;
+
+	if (tzmax < tmax)
+		tmax = tzmax;
+
+	return make_tuple(true, tmin);
+}
+
+bool BoundingBox::HasIntersectionWithBox(BoundingBox* box) {
+	if (xMin > box->xMax)
+		return false;
+
+	if (xMax < box->xMin)
+		return false;
+
+	if (yMin > box->yMax)
+		return false;
+
+	if (yMax < box->yMin)
+		return false;
+
+	if (zMin > box->zMax)
+		return false;
+
+	if (zMax < box->zMin)
+		return false;
+
+	return true;
 }

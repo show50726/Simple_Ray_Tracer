@@ -9,6 +9,7 @@
 #include "ImageIO.h"
 #include "algebra3.h"
 #include "Shape.h"
+#include "BroadPhase.h"
 #define PI 3.141592653589793
 
 using namespace std;
@@ -32,6 +33,17 @@ Pixel Vec2Pixel(vec3 color)
 	return Pixel(r, g, b);
 }
 
+void UpdateBound(vec2& xBound, vec2& yBound, vec2& zBound, Shape* shape) {
+	xBound[0] = min(xBound[0], shape->boundingBox.xMin);
+	xBound[1] = max(xBound[1], shape->boundingBox.xMax);
+
+	yBound[0] = min(yBound[0], shape->boundingBox.yMin);
+	yBound[1] = max(yBound[1], shape->boundingBox.yMax);
+
+	zBound[0] = min(zBound[0], shape->boundingBox.zMin);
+	zBound[1] = max(zBound[1], shape->boundingBox.zMax);
+}
+
 int main()
 {
 	int W, H;
@@ -40,10 +52,11 @@ int main()
 	vector<Material> materials;
 	vector<Shape*> shapes;
 	ColorImage image;
+	vec2 xBound(1000000.0f, -1000000.0f), yBound(1000000.0f, -1000000.0f), zBound(1000000.0f, -1000000.0f);
 
 	ifstream inputFile;
 	char op;
-	inputFile.open("input.txt", ios::in);
+	inputFile.open("Input_Suzanne.txt", ios::in);
 
 	if (!inputFile)
 	{
@@ -53,6 +66,7 @@ int main()
 	
 	while (inputFile >> op) {
 		switch (op) {
+			
 		case 'E':
 		{
 			ScanVector(inputFile, view.eyePos);
@@ -81,6 +95,7 @@ int main()
 			float r;
 			inputFile >> c[0] >> c[1] >> c[2] >> r;
 			Shape* sphere = new Sphere(c, r, materials.back());
+			UpdateBound(xBound, yBound, zBound, sphere);
 
 			shapes.push_back(sphere);
 			break;
@@ -96,8 +111,8 @@ int main()
 			}
 			ScanVector(inputFile,normal);
 
-			Triangle::ReorderToCounterClockWise(triangleVec, view.eyePos);
 			Shape* triangle = new Triangle(triangleVec, materials.back(), normal);
+			UpdateBound(xBound, yBound, zBound, triangle);
 			shapes.push_back(triangle);
 			break;
 		}
@@ -106,6 +121,7 @@ int main()
 			vec3 light;
 			ScanVector(inputFile, light);
 			lightPos.push_back(light);
+			cout << light[0] << endl;
 			break;
 		}
 		case 'M':
@@ -131,7 +147,20 @@ int main()
 	cornerPos[0] = view.eyePos + view.direction - rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
+	
+	xBound[0] -= 5;
+	xBound[1] += 5;
+	yBound[0] -= 5;
+	yBound[1] += 5;
+	zBound[0] -= 5;
+	zBound[1] += 5;
+	
+	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 10, 10, 10, xBound, yBound, zBound);
+	//BroadPhase* broadPhase = new NSquareBroadPhase();
 
+	auto t1 = high_resolution_clock::now();
+	cout << "done hash construction in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
+	//system("pause");
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
 		{
@@ -140,8 +169,7 @@ int main()
 			vec3 screenPos = cornerPos[0] + x + y;
 
 			vec3 dir = screenPos - view.eyePos;
-			Ray ray = Ray(view.eyePos, dir);
-			
+			Ray ray = Ray(view.eyePos, dir, broadPhase);
 			vec3 vecColor = ray.CastRay(shapes, lightPos[0], view.eyePos, 1.0f);
 			Pixel color = Vec2Pixel(vecColor);
 
@@ -151,7 +179,7 @@ int main()
 
 	image.outputPPM("RT.ppm");
 
-	cout << "done ray tracing in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
+	cout << "done ray tracing in " << duration<double>(high_resolution_clock::now() - t1).count() << " s" << endl;
 
 	inputFile.close();
 

@@ -34,28 +34,7 @@ vector<Shape*> GetExcludeVector(vector<Shape*>& shapes, vector<Shape*> exclude)
 
 HitInfo Ray::BroadPhaseDetection(vector<Shape*>& shapes)
 {
-	float minT = 100010.0f;
-	Shape* candidate = NULL;
-	for (auto shape : shapes)
-	{
-		bool intersect;
-		float t;
-		tie(intersect, t) = shape->HasIntersect(*this);
-
-		if (intersect && t < minT)
-		{
-			candidate = shape;
-			minT = t;
-		}
-	}
-
-	if (candidate)
-	{
-		vec3 hitPos = startPoint + minT * direction;
-		return HitInfo(candidate, hitPos);
-	}
-	
-	return HitInfo(NULL, 0.0f);
+	return _broadPhase->BroadPhaseDetection(*this, shapes);
 }
 
 vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weight)
@@ -70,6 +49,7 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weig
 	}
 
 	vec3 hitNormal = shape->GetNormal(hitPos);
+	//cout << hitNormal[0] << " " << hitNormal[1] << " " << hitNormal[2] << endl;
 	
 	if (IsInShadow(hitPos, lightPos, shapes, {shape}))
 	{
@@ -79,6 +59,7 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weig
 	vec3 lightDir = (lightPos - hitPos).normalize();
 	vec3 viewDir = (hitPos - eyePos).normalize();
 	vec3 color = shape->material.CalcColor(hitNormal, lightDir, viewDir);
+	//cout << color[0] << " " << color[1] << " " << color[2] << endl;
 
 	vec3 subRayColor = vec3(0.0f, 0.0f, 0.0f);
 	if (shape->material.reflectionRadio > 0.0f)
@@ -90,5 +71,18 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weig
 	}
 
 	return color + subRayColor;
+}
+
+Ray::Ray(vec3 p, vec3 d, BroadPhase* broadPhase)
+{
+	startPoint = p;
+	direction = d.normalize();
+
+	if (broadPhase == NULL) {
+		_broadPhase = new NSquareBroadPhase();
+	}
+	else {
+		_broadPhase = broadPhase;
+	}
 }
 
