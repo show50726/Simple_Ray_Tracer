@@ -84,9 +84,10 @@ void Triangle::ReorderToCounterClockWise(vector<vec3>& vert, vec3 eyePos)
 }
 
 tuple<bool, float> BoundingBox::HasIntersect(Ray ray) {
+	/*
 	if (ray.startPoint[0] >= xMin && ray.startPoint[0] <= xMax && ray.startPoint[1] >= yMin && ray.startPoint[1] <= yMax && ray.startPoint[2] >= zMin && ray.startPoint[2] <= zMax)
 		return make_tuple(true, 0);
-
+	*/
 
 	float tmin = (xMin - ray.startPoint[0]) / ray.direction[0];
 	float tmax = (xMax - ray.startPoint[0]) / ray.direction[0];
@@ -127,7 +128,7 @@ tuple<bool, float> BoundingBox::HasIntersect(Ray ray) {
 	if (tzmax < tmax)
 		tmax = tzmax;
 
-	return make_tuple(true, tmin);
+	return make_tuple(true, tmin > 0 ? tmin : tmax);
 }
 
 bool BoundingBox::HasIntersectionWithBox(BoundingBox* box) {

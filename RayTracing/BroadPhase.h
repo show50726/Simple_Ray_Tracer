@@ -56,11 +56,13 @@ public:
 
 	void Insert(Shape* shape);
 	vector<GridNode*> FindClosestIntersectionNode(Ray& ray);
+	tuple<int, int, int> FindClosestNode(vec3& pos);
 
 private:
 	void _InitCells(vec2 xBound, vec2 yBound, vec2 zBound);
 
 	int _xSize, _ySize, _zSize;
+	float _xLength, _yLength, _zLength;
 	vec2 _xBound, _yBound, _zBound;
 	vector<vector<vector<BoundingBox*>>> _Grid;
 	vector<vector<vector<GridNode*>>> _nodeList;
