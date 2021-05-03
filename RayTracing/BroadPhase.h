@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <thread>
 #include "Shape.h"
 #include "Foundation.h"
 
@@ -44,6 +45,10 @@ public:
 		_ySize = ys;
 		_zSize = zs;
 
+		_xBound = xBound;
+		_yBound = yBound;
+		_zBound = zBound;
+
 		_Grid.resize(_xSize, vector<vector<BoundingBox*> >(_ySize, vector<BoundingBox*>(_zSize, NULL)));
 		_nodeList.resize(_xSize, vector<vector<GridNode*> >(_ySize, vector<GridNode*>(_zSize, NULL)));
 		_InitCells(xBound, yBound, zBound);
@@ -56,6 +61,7 @@ private:
 	void _InitCells(vec2 xBound, vec2 yBound, vec2 zBound);
 
 	int _xSize, _ySize, _zSize;
+	vec2 _xBound, _yBound, _zBound;
 	vector<vector<vector<BoundingBox*>>> _Grid;
 	vector<vector<vector<GridNode*>>> _nodeList;
 };
@@ -68,7 +74,7 @@ public:
 		_grid = new GridHash(xs, ys, zs, xBound, yBound, zBound);
 
 		for (int i = 0; i < shapes.size(); i++) {
-			cout << i << ": ";
+			// cout << i << ": ";
 			_grid->Insert(shapes[i]);
 		}
 	}

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <thread>
 #include "algebra3.h"
 #include "Shape.h"
 #include "BroadPhase.h"
@@ -51,6 +52,12 @@ public:
 		return v.normalize();
 	}
 };
+
+inline void waitThreads(vector<thread> &threads) {
+	for (int i = 0; i < threads.size(); i++) {
+		threads[i].join();
+	}
+}
 
 
 

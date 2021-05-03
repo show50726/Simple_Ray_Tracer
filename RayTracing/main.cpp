@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <thread>
 #include <vector>
 #include <fstream>      
 #include "ImageIO.h"
@@ -148,34 +149,43 @@ int main()
 	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
 	
-	xBound[0] -= 5;
-	xBound[1] += 5;
-	yBound[0] -= 5;
-	yBound[1] += 5;
-	zBound[0] -= 5;
-	zBound[1] += 5;
 	
-	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 10, 10, 10, xBound, yBound, zBound);
-	//BroadPhase* broadPhase = new NSquareBroadPhase();
+	xBound[0] -= 1;
+	xBound[1] += 1;
+	yBound[0] -= 1;
+	yBound[1] += 1;
+	zBound[0] -= 1;
+	zBound[1] += 1;
+	
+	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 3, 3, 3, xBound, yBound, zBound);
+	// BroadPhase* broadPhase = new NSquareBroadPhase();
 
 	auto t1 = high_resolution_clock::now();
 	cout << "done hash construction in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
 	//system("pause");
+
+	vector<std::thread> threads;
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
 		{
-			vec3 x = (cornerPos[1] - cornerPos[0]) * (j + 1) / W;
-			vec3 y = (cornerPos[2] - cornerPos[0]) * (i + 1) / H;
-			vec3 screenPos = cornerPos[0] + x + y;
+			threads.push_back(std::thread([&cornerPos, i, j, H, W, &view, &broadPhase, &shapes, &lightPos, &image] {
+				vec3 x = (cornerPos[1] - cornerPos[0]) * (j + 1) / W;
+				vec3 y = (cornerPos[2] - cornerPos[0]) * (i + 1) / H;
+				vec3 screenPos = cornerPos[0] + x + y;
 
-			vec3 dir = screenPos - view.eyePos;
-			Ray ray = Ray(view.eyePos, dir, broadPhase);
-			vec3 vecColor = ray.CastRay(shapes, lightPos[0], view.eyePos, 1.0f);
-			Pixel color = Vec2Pixel(vecColor);
+				vec3 dir = screenPos - view.eyePos;
+				Ray ray = Ray(view.eyePos, dir, broadPhase);
+				vec3 vecColor = ray.CastRay(shapes, lightPos[0], view.eyePos, 1.0f);
+				Pixel color = Vec2Pixel(vecColor);
 
-			image.writePixel(j, i, color);
+				image.writePixel(j, i, color);
+
+			}));
+			
 		}
 	}
+
+	waitThreads(threads);
 
 	image.outputPPM("RT.ppm");
 

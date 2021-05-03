@@ -61,20 +61,19 @@ void GridHash::Insert(Shape* shape) {
 			for (int k = 0; k < _zSize; k++) {
 				auto box = _Grid[i][j][k];
 				if (shape->HasIntersectionWithBox(box)) {
-					cout << i << " " << j << " " << k << endl;
+					//cout << i << " " << j << " " << k << endl;
+
 					auto newNode = new GridNode(shape);
 
 					if (_nodeList[i][j][k] == NULL) {
 						_nodeList[i][j][k] = newNode;
 					}
 					else {
-						int l = 1;
 						auto cur = _nodeList[i][j][k];
 						while (cur->next != NULL) {
-							l++;
 							cur = cur->next;
 						}
-						cout << "length: " << l << endl;
+
 						cur->next = newNode;
 					}
 				}
@@ -85,6 +84,7 @@ void GridHash::Insert(Shape* shape) {
 
 vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 	vector<GridNode*> list;
+
 	for (int i = 0; i < _xSize; i++) {
 		for (int j = 0; j < _ySize; j++) {
 			for (int k = 0; k < _zSize; k++) {
@@ -92,13 +92,14 @@ vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 				bool hit;
 				float t;
 				tie(hit, t) = box->HasIntersect(ray);
-				
+
 				if (_nodeList[i][j][k] != NULL) {
 					list.push_back(_nodeList[i][j][k]);
 				}
 			}
 		}
 	}
+
 	return list;
 }
 
