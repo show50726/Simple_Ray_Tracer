@@ -95,22 +95,26 @@ tuple<bool, float> BoundingBox::HasIntersect(Ray ray) {
 	if (tmin > tmax) 
 		swap(tmin, tmax);
 
+	if (tmax < 0)
+		tmax = 10000010;
+
+	if (tmin < 0)
+		tmin = -10000010;
+
 	float tymin = (yMin - ray.startPoint[1]) / ray.direction[1];
 	float tymax = (yMax - ray.startPoint[1]) / ray.direction[1];
 
 	if (tymin > tymax) 
 		swap(tymin, tymax);
 
-	if ((tmin > tymax) || (tymin > tmax))
+	if ((tmin > tymax) || (tymin > tmax)) {
 		return make_tuple(false, 0);
-
-	if (tymin < tmin)
-		tmin = tymin;
+	}
 
 	if (tymin > tmin)
 		tmin = tymin;
 
-	if (tymax < tmax)
+	if (tymax < tmax && tymax > 0)
 		tmax = tymax;
 
 	float tzmin = (zMin - ray.startPoint[2]) / ray.direction[2];
@@ -119,14 +123,18 @@ tuple<bool, float> BoundingBox::HasIntersect(Ray ray) {
 	if (tzmin > tzmax)
 		swap(tzmin, tzmax);
 
-	if ((tmin > tzmax) || (tzmin > tmax))
+	if ((tmin > tzmax) || (tzmin > tmax)) {
 		return make_tuple(false, 0);
+	}
 
 	if (tzmin > tmin)
 		tmin = tzmin;
 
-	if (tzmax < tmax)
+	if (tzmax < tmax && tzmax > 0)
 		tmax = tzmax;
+
+	if (tmax < 0 && tmin < 0)
+		return make_tuple(false, 0);
 
 	return make_tuple(true, tmin > 0 ? tmin : tmax);
 }

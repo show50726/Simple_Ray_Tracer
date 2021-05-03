@@ -164,11 +164,12 @@ int main()
 	cout << "done hash construction in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
 	//system("pause");
 
-	vector<std::thread> threads;
+	//vector<std::thread> threads;
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
 		{
-			threads.push_back(std::thread([&cornerPos, i, j, H, W, &view, &broadPhase, &shapes, &lightPos, &image] {
+			//threads.push_back(std::thread([&cornerPos, i, j, H, W, &view, &broadPhase, &shapes, &lightPos, &image] {
+				cout << i << " " << j << endl;
 				vec3 x = (cornerPos[1] - cornerPos[0]) * (j + 1) / W;
 				vec3 y = (cornerPos[2] - cornerPos[0]) * (i + 1) / H;
 				vec3 screenPos = cornerPos[0] + x + y;
@@ -180,12 +181,12 @@ int main()
 
 				image.writePixel(j, i, color);
 
-			}));
+			//}));
 			
 		}
 	}
 
-	waitThreads(threads);
+	//waitThreads(threads);
 
 	image.outputPPM("RT.ppm");
 
