@@ -87,9 +87,23 @@ vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 
 	// Find closest point if the start point of the ray is not inside the grid
 	Ray curRay = ray;
+
+	BoundingBox world = BoundingBox(_xBound[0], _xBound[1], _yBound[0], _yBound[1], _zBound[0], _zBound[1]);
 	tuple<int, int, int> id;
 
-	while (get<0>(id = FindClosestNode(ray.startPoint)) != -1) {
+	if (get<0>(id = FindClosestNode(curRay.startPoint)) == -1) {
+		bool hit; float t;
+		tie(hit, t) = world.HasIntersect(curRay);
+
+		if (!hit)
+			return {};
+
+		t += 0.001f;
+		curRay.startPoint = curRay.startPoint + t * curRay.direction;
+	}
+
+	// Need Fix
+	while (get<0>(id = FindClosestNode(curRay.startPoint)) != -1) {
 		int x, y, z;
 		tie(x, y, z) = id;
 
@@ -102,8 +116,9 @@ vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 		
 		assert(hit == true);
 
-		t += 0.001f;
+		t += 0.05f;
 		vec3 newPos = curRay.startPoint + t * curRay.direction;
+		curRay.startPoint = newPos;
 	}
 
 	/* O(n^3) method
