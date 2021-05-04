@@ -30,6 +30,9 @@
     <ClCompile Include="Materials.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="BroadPhase.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImageIO.h">
@@ -45,6 +48,9 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="Materials.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="BroadPhase.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

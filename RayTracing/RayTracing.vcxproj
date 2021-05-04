@@ -118,6 +118,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="algebra3.h" />
+    <ClInclude Include="BroadPhase.h" />
     <ClInclude Include="Foundation.h" />
     <ClInclude Include="ImageIO.h" />
     <ClInclude Include="Materials.h" />
@@ -125,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="algebra3.cpp" />
+    <ClCompile Include="BroadPhase.cpp" />
     <ClCompile Include="Foundation.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Materials.cpp" />
