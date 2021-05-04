@@ -57,7 +57,7 @@ int main()
 
 	ifstream inputFile;
 	char op;
-	inputFile.open("Input_Suzanne.txt", ios::in);
+	inputFile.open("Input_Bunny.txt", ios::in);
 
 	if (!inputFile)
 	{
@@ -157,18 +157,18 @@ int main()
 	zBound[0] -= 1;
 	zBound[1] += 1;
 	
-	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 3, 3, 3, xBound, yBound, zBound);
+	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 5, 5, 5, xBound, yBound, zBound);
 	// BroadPhase* broadPhase = new NSquareBroadPhase();
 
 	auto t1 = high_resolution_clock::now();
 	cout << "done hash construction in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
 	//system("pause");
 
-	//vector<std::thread> threads;
+	vector<std::thread> threads;
 	for (int i = 0; i < H; i++) {
 		for (int j = 0; j < W; j++)
 		{
-			//threads.push_back(std::thread([&cornerPos, i, j, H, W, &view, &broadPhase, &shapes, &lightPos, &image] {
+			threads.push_back(std::thread([&cornerPos, i, j, H, W, &view, &broadPhase, &shapes, &lightPos, &image] {
 				cout << i << " " << j << endl;
 				vec3 x = (cornerPos[1] - cornerPos[0]) * (j + 1) / W;
 				vec3 y = (cornerPos[2] - cornerPos[0]) * (i + 1) / H;
@@ -181,12 +181,12 @@ int main()
 
 				image.writePixel(j, i, color);
 
-			//}));
+			}));
 			
 		}
 	}
 
-	//waitThreads(threads);
+	waitThreads(threads);
 
 	image.outputPPM("RT.ppm");
 
