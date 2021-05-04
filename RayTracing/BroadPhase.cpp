@@ -26,33 +26,7 @@ HitInfo NSquareBroadPhase::BroadPhaseDetection(Ray ray, vector<Shape*> shapes) {
 }
 
 HitInfo SpatialHashBroadPhase::BroadPhaseDetection(Ray ray, vector<Shape*> shapes) {
-	vector<GridNode*> gridNodes = _grid->FindClosestIntersectionNode(ray);
-	Shape* candidate = NULL;
-	float minT = 100000010;
-
-	for (auto gridNode : gridNodes) {
-		GridNode* curNode = gridNode;
-
-		while (curNode != NULL) {
-			bool hit;
-			float t;
-			tie(hit, t) = curNode->shape->HasIntersect(ray);
-
-			if (hit && t < minT && find(shapes.begin(), shapes.end(), curNode->shape) != shapes.end()) {
-				candidate = curNode->shape;
-				minT = t;;
-			}
-
-			curNode = curNode->next;
-		}
-	}
-
-	if (candidate) {
-		vec3 hitPos = ray.startPoint + minT * ray.direction;
-		return HitInfo(candidate, hitPos);
-	}
-
-	return HitInfo(NULL, 0.0f);
+	return _grid->FindClosestIntersectionNode(ray, shapes);
 }
 
 void GridHash::Insert(Shape* shape) {
@@ -82,7 +56,7 @@ void GridHash::Insert(Shape* shape) {
 	}
 }
 
-vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
+HitInfo GridHash::FindClosestIntersectionNode(Ray& ray, vector<Shape*> shapes) {
 	vector<GridNode*> list;
 
 	// Find closest point if the start point of the ray is not inside the grid
@@ -96,18 +70,42 @@ vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 		tie(hit, t) = world.HasIntersect(curRay);
 
 		if (!hit)
-			return {};
+			return HitInfo(NULL, 0.0f);
 
-		t += 0.001f;
+		t += 0.00001f;
 		curRay.startPoint = curRay.startPoint + t * curRay.direction;
 	}
 
-	while (get<0>(id = FindClosestNode(curRay.startPoint)) != -1) {
+	id = FindClosestNode(curRay.startPoint);
+	
+	while (InRange(get<0>(id), get<1>(id), get<2>(id))) {
 		int x, y, z;
 		tie(x, y, z) = id;
 
-		if(_nodeList[x][y][z] != NULL)
-			list.push_back(_nodeList[x][y][z]);
+		if (_nodeList[x][y][z] != NULL) {
+			GridNode* curNode = _nodeList[x][y][z];
+			float minT = 100000010;
+			Shape* candidate = NULL;
+
+			while (curNode != NULL) {
+				bool hit;
+				float t;
+				tie(hit, t) = curNode->shape->HasIntersect(ray);
+				vec3 hitPos = ray.startPoint + t * ray.direction;
+
+				if (hit && t < minT && _Grid[x][y][z]->IsPointInBox(hitPos) && find(shapes.begin(), shapes.end(), curNode->shape) != shapes.end()) {
+					minT = t;
+					candidate = curNode->shape;
+				}
+
+				curNode = curNode->next;
+			}
+
+			if (candidate) {
+				vec3 hitPos = ray.startPoint + minT * ray.direction;
+				return HitInfo(candidate, hitPos);
+			}
+		}
 
 		BoundingBox* boundingBox = _Grid[x][y][z];
 		bool hit; float t;
@@ -115,29 +113,14 @@ vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 		
 		assert(hit == true);
 
-		t += 0.05f;
+		t += 0.00001f;
 		vec3 newPos = curRay.startPoint + t * curRay.direction;
 		curRay.startPoint = newPos;
+
+		id = FindClosestNode(curRay.startPoint);
 	}
 
-	/* O(n^3) method
-	for (int i = 0; i < _xSize; i++) {
-		for (int j = 0; j < _ySize; j++) {
-			for (int k = 0; k < _zSize; k++) {
-				auto box = _Grid[i][j][k];
-				bool hit;
-				float t;
-				tie(hit, t) = box->HasIntersect(ray);
-
-				if (_nodeList[i][j][k] != NULL) {
-					list.push_back(_nodeList[i][j][k]);
-				}
-			}
-		}
-	}
-	*/
-
-	return list;
+	return HitInfo(NULL, 0.0f);
 }
 
 void GridHash::_InitCells(vec2 xBound, vec2 yBound, vec2 zBound) {
@@ -167,4 +150,17 @@ tuple<int, int, int> GridHash::FindClosestNode(vec3& pos) {
 		return make_tuple(xIndex, yIndex, zIndex);
 
 	return make_tuple(-1, -1, -1);
+}
+
+bool GridHash::InRange(int x, int y, int z) {
+	if (x < 0 || x >= _xSize)
+		return false;
+
+	if (y < 0 || y >= _ySize)
+		return false;
+
+	if (z < 0 || z >= _zSize)
+		return false;
+
+	return true;
 }

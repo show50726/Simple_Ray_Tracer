@@ -160,3 +160,20 @@ bool BoundingBox::HasIntersectionWithBox(BoundingBox* box) {
 
 	return true;
 }
+
+bool BoundingBox::IsPointInBox(vec3& point) {
+	float x = point[0];
+	float y = point[1];
+	float z = point[2];
+
+	if (x < xMin || x > xMax)
+		return false;
+
+	if (y < yMin || y > yMax)
+		return false;
+
+	if (z < zMin || z > zMax)
+		return false;
+
+	return true;
+}

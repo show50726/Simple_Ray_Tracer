@@ -38,6 +38,7 @@ public:
 
 	tuple<bool, float> HasIntersect(Ray ray);
 	bool HasIntersectionWithBox(BoundingBox* box);
+	bool IsPointInBox(vec3& point);
 
 	vec3 center;
 	float xMin, xMax, yMin, yMax, zMin, zMax;

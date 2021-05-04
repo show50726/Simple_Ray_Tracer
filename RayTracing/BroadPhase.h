@@ -55,7 +55,8 @@ public:
 	}
 
 	void Insert(Shape* shape);
-	vector<GridNode*> FindClosestIntersectionNode(Ray& ray);
+	bool InRange(int x, int y, int z);
+	HitInfo FindClosestIntersectionNode(Ray& ray, vector<Shape*> shapes);
 	tuple<int, int, int> FindClosestNode(vec3& pos);
 
 private:

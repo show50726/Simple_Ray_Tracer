@@ -149,15 +149,15 @@ int main()
 	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
 	
-	
+	/*
 	xBound[0] -= 1;
 	xBound[1] += 1;
 	yBound[0] -= 1;
 	yBound[1] += 1;
 	zBound[0] -= 1;
 	zBound[1] += 1;
-	
-	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 5, 5, 5, xBound, yBound, zBound);
+	*/
+	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 20, 20, 20, xBound, yBound, zBound);
 	// BroadPhase* broadPhase = new NSquareBroadPhase();
 
 	auto t1 = high_resolution_clock::now();
@@ -169,7 +169,7 @@ int main()
 		for (int j = 0; j < W; j++)
 		{
 			threads.push_back(std::thread([&cornerPos, i, j, H, W, &view, &broadPhase, &shapes, &lightPos, &image] {
-				cout << i << " " << j << endl;
+				// cout << i << " " << j << endl;
 				vec3 x = (cornerPos[1] - cornerPos[0]) * (j + 1) / W;
 				vec3 y = (cornerPos[2] - cornerPos[0]) * (i + 1) / H;
 				vec3 screenPos = cornerPos[0] + x + y;
