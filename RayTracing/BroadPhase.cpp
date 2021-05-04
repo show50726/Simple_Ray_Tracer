@@ -102,7 +102,6 @@ vector<GridNode*> GridHash::FindClosestIntersectionNode(Ray& ray) {
 		curRay.startPoint = curRay.startPoint + t * curRay.direction;
 	}
 
-	// Need Fix
 	while (get<0>(id = FindClosestNode(curRay.startPoint)) != -1) {
 		int x, y, z;
 		tie(x, y, z) = id;
