@@ -71,13 +71,10 @@ private:
 
 class SpatialHashBroadPhase : public BroadPhase {
 public:
-	//SpatialHashBroadPhase() { }
-
 	SpatialHashBroadPhase(vector<Shape*> shapes, int xs, int ys, int zs, vec2 xBound, vec2 yBound, vec2 zBound) {
 		_grid = new GridHash(xs, ys, zs, xBound, yBound, zBound);
 
 		for (int i = 0; i < shapes.size(); i++) {
-			// cout << i << ": ";
 			_grid->Insert(shapes[i]);
 		}
 	}

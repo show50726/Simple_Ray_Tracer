@@ -49,7 +49,6 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weig
 	}
 
 	vec3 hitNormal = shape->GetNormal(hitPos);
-	//cout << hitNormal[0] << " " << hitNormal[1] << " " << hitNormal[2] << endl;
 	
 	if (IsInShadow(hitPos, lightPos, shapes, {shape}))
 	{
@@ -59,7 +58,6 @@ vec3 Ray::CastRay(vector<Shape*>& shapes, vec3 lightPos, vec3 eyePos, float weig
 	vec3 lightDir = (lightPos - hitPos).normalize();
 	vec3 viewDir = (hitPos - eyePos).normalize();
 	vec3 color = shape->material.CalcColor(hitNormal, lightDir, viewDir);
-	//cout << color[0] << " " << color[1] << " " << color[2] << endl;
 
 	vec3 subRayColor = vec3(0.0f, 0.0f, 0.0f);
 	if (shape->material.reflectionRadio > 0.0f)

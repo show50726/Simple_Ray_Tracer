@@ -149,20 +149,11 @@ int main()
 	cornerPos[1] = view.eyePos + view.direction + rightVec * halfWidth + view.upVector * halfHeight;
 	cornerPos[2] = view.eyePos + view.direction - rightVec * halfWidth - view.upVector * halfHeight;
 	
-	/*
-	xBound[0] -= 1;
-	xBound[1] += 1;
-	yBound[0] -= 1;
-	yBound[1] += 1;
-	zBound[0] -= 1;
-	zBound[1] += 1;
-	*/
-	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 20, 20, 20, xBound, yBound, zBound);
+	BroadPhase* broadPhase = new SpatialHashBroadPhase(shapes, 12, 12, 12, xBound, yBound, zBound);
 	// BroadPhase* broadPhase = new NSquareBroadPhase();
 
 	auto t1 = high_resolution_clock::now();
 	cout << "done hash construction in " << duration<double>(high_resolution_clock::now() - t0).count() << " s" << endl;
-	//system("pause");
 
 	vector<std::thread> threads;
 	for (int i = 0; i < H; i++) {

@@ -19,6 +19,10 @@ struct Pixel {
 		G = g;
 		B = b;
 	}
+
+	bool operator !=(Pixel p) {
+		return (R != p.R || G != p.G || B != p.B);
+	}
 };
 
 class ColorImage {
